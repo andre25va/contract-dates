@@ -325,6 +325,24 @@
     .btn-email:hover { opacity: 0.88; }
     .btn-email:disabled { opacity: 0.5; cursor: not-allowed; }
 
+    .btn-ics {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, #7c3aed, #a78bfa);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      box-shadow: 0 2px 8px rgba(124,58,237,0.3);
+    }
+    .btn-ics:hover { opacity: 0.88; }
+
     .btn-print {
       display: inline-flex;
       align-items: center;
@@ -634,9 +652,9 @@
             <svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg>
             Email Summary
           </button>
-          <button class="btn-add-all" onclick="addAllToCalendar()">
-            <svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
-            Add All to Calendar
+          <button class="btn-ics" onclick="downloadICS()">
+            <svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+            Download All (.ics)
           </button>
           <button class="btn-print" onclick="window.print()">
             <svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a1 1 0 001 1h8a1 1 0 001-1v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a1 1 0 00-1-1H6a1 1 0 00-1 1zm2 0h6v3H7V4zm-1 9v-2h8v2H6zm9-6a1 1 0 110 2 1 1 0 010-2z" clip-rule="evenodd"/></svg>
@@ -825,11 +843,49 @@
       });
   }
 
-  // ─── ADD ALL TO CALENDAR ──────────────────────────────────────────────────
-  function addAllToCalendar() {
+  // ─── DOWNLOAD ICS ─────────────────────────────────────────────────────────
+  function fmtICS(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}${m}${d}`;
+  }
+
+  function downloadICS() {
+    if (!currentEvents.length) return;
+
+    const lines = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//Realty of America//Contract Dates//EN',
+      'CALSCALE:GREGORIAN',
+      'METHOD:PUBLISH',
+    ];
+
     currentEvents.forEach((evt, i) => {
-      setTimeout(() => window.open(calUrl(evt.label, evt.date, evt.address), '_blank'), i * 400);
+      const start = fmtICS(evt.date);
+      const end   = fmtICS(addDays(evt.date, 1));
+      const uid   = `roa-contract-${Date.now()}-${i}@andrevargasteam.com`;
+      lines.push('BEGIN:VEVENT');
+      lines.push(`UID:${uid}`);
+      lines.push(`DTSTART;VALUE=DATE:${start}`);
+      lines.push(`DTEND;VALUE=DATE:${end}`);
+      lines.push(`SUMMARY:${evt.label}`);
+      lines.push(`DESCRIPTION:${evt.note}\nProperty: ${currentData.address}\nAgent: ${currentData.agent}\nClient: ${currentData.client}`);
+      lines.push(`LOCATION:${currentData.address}`);
+      lines.push('END:VEVENT');
     });
+
+    lines.push('END:VCALENDAR');
+
+    const blob = new Blob([lines.join('\r\n')], { type: 'text/calendar;charset=utf-8' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = `contract-dates-${currentData.address.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.ics`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('Calendar file downloaded! Open it to import all dates.', 'success');
   }
 
   // ─── RESET ────────────────────────────────────────────────────────────────
