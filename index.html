@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Know Your Dates – ROA</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <!-- EmailJS -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy: #0b1f4b;
+      --navy2: #132a5e;
+      --blue:  #2563eb;
+      --blue2: #3b82f6;
+      --gold:  #f59e0b;
+      --gold2: #fbbf24;
+      --bg:    #f8faff;
+      --card:  #ffffff;
+      --border: #e2e8f0;
+      --text:  #1e293b;
+      --muted: #64748b;
+      --light: #f1f5f9;
+      --green: #059669;
+      --green2: #10b981;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── HERO ─────────────────────────────── */
+    .hero {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 50%, #1e3a8a 100%);
+      padding: 48px 24px 64px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 320px; height: 320px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(37,99,235,0.3) 0%, transparent 70%);
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -40px; left: 10%;
+      width: 200px; height: 200px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(245,158,11,0.15) 0%, transparent 70%);
+    }
+    .hero-inner {
+      max-width: 720px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(245,158,11,0.15);
+      border: 1px solid rgba(245,158,11,0.35);
+      color: var(--gold2);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border-radius: 99px;
+      margin-bottom: 16px;
+    }
+    .hero h1 {
+      font-size: clamp(1.75rem, 4vw, 2.75rem);
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+    .hero h1 span { color: var(--gold2); }
+    .hero p {
+      color: rgba(255,255,255,0.6);
+      font-size: 0.95rem;
+      font-weight: 400;
+    }
+
+    /* ── MAIN ─────────────────────────────── */
+    .main {
+      max-width: 720px;
+      margin: -28px auto 60px;
+      padding: 0 20px;
+    }
+
+    /* ── CARD ─────────────────────────────── */
+    .card {
+      background: var(--card);
+      border-radius: 20px;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 10px 40px -10px rgba(11,31,75,0.12);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 24px 28px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .card-header h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .card-header p {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .card-body { padding: 28px; }
+
+    /* ── FORM ─────────────────────────────── */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .full { grid-column: 1 / -1; }
+
+    .field label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .field label .req { color: #ef4444; margin-left: 2px; }
+
+    .field input {
+      width: 100%;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 0.875rem;
+      font-family: 'Inter', sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+      appearance: none;
+    }
+    .field input:focus {
+      border-color: var(--blue2);
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+      background: #fff;
+    }
+    .field input::placeholder { color: #b0bec5; }
+    .field input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.5; }
+
+    .form-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 22px;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 11px 24px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s;
+      box-shadow: 0 4px 14px rgba(37,99,235,0.35);
+    }
+    .btn-primary:hover { opacity: 0.92; transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: transparent;
+      color: var(--muted);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 11px 18px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-ghost:hover { background: var(--light); color: var(--text); border-color: #cbd5e1; }
+
+    .error-msg {
+      display: none;
+      margin-top: 12px;
+      padding: 10px 14px;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      color: #dc2626;
+    }
+    .error-msg.show { display: block; }
+
+    /* ── SUMMARY BAR ──────────────────────── */
+    #results { display: none; margin-top: 20px; }
+    #results.visible { display: block; }
+
+    .summary-bar {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 20px;
+      border: 1px solid var(--border);
+    }
+    .summary-item {
+      background: #fff;
+      padding: 16px 20px;
+    }
+    .summary-item:first-child { border-radius: 16px 0 0 16px; }
+    .summary-item:last-child  { border-radius: 0 16px 16px 0; }
+    .summary-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .summary-value {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* ── RESULTS CARD ─────────────────────── */
+    .results-card { overflow: visible; }
+
+    .results-header {
+      padding: 20px 28px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      background: linear-gradient(90deg, #f8faff 0%, #fff 100%);
+    }
+    .results-header h3 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .results-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .btn-add-all {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, #059669, #10b981);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      box-shadow: 0 2px 8px rgba(5,150,105,0.3);
+    }
+    .btn-add-all:hover { opacity: 0.88; }
+
+    .btn-email {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, var(--gold), var(--gold2));
+      color: #7c2d12;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      box-shadow: 0 2px 8px rgba(245,158,11,0.3);
+    }
+    .btn-email:hover { opacity: 0.88; }
+    .btn-email:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-print {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--light);
+      color: var(--muted);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-print:hover { background: #e2e8f0; color: var(--text); }
+
+    /* ── DATE ROWS ────────────────────────── */
+    .date-list { padding: 8px 0; }
+
+    .date-row {
+      display: grid;
+      grid-template-columns: 32px 1fr auto auto;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 28px;
+      border-bottom: 1px solid #f1f5f9;
+      transition: background 0.15s;
+    }
+    .date-row:last-child { border-bottom: none; }
+    .date-row:hover { background: #f8faff; }
+    .date-row.is-closing {
+      background: linear-gradient(90deg, #eff6ff, #fff);
+      border-top: 2px solid #bfdbfe;
+      border-bottom: none;
+    }
+    .date-row.is-closing:hover { background: linear-gradient(90deg, #dbeafe, #eff6ff); }
+
+    .row-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: var(--light);
+      color: var(--muted);
+      font-size: 0.7rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .is-closing .row-num {
+      background: linear-gradient(135deg, var(--navy), var(--blue));
+      color: #fff;
+    }
+
+    .row-info {}
+    .row-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.3;
+    }
+    .is-closing .row-title { color: var(--navy); font-size: 0.95rem; }
+    .row-note {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .row-date {
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .row-date-main {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--text);
+      white-space: nowrap;
+    }
+    .is-closing .row-date-main { color: var(--navy); font-size: 1rem; }
+    .row-date-day {
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 99px;
+      white-space: nowrap;
+      margin-top: 3px;
+    }
+    .chip-contract { background: #dbeafe; color: #1d4ed8; }
+    .chip-closing  { background: #d1fae5; color: #065f46; }
+    .chip-key      { background: #fef3c7; color: #92400e; }
+
+    .btn-cal {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #fff;
+      color: var(--blue);
+      border: 1.5px solid #bfdbfe;
+      border-radius: 8px;
+      padding: 7px 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      text-decoration: none;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+    .btn-cal:hover {
+      background: var(--blue);
+      color: #fff;
+      border-color: var(--blue);
+      box-shadow: 0 2px 8px rgba(37,99,235,0.25);
+    }
+    .is-closing .btn-cal {
+      background: linear-gradient(135deg, var(--navy), var(--blue));
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 2px 8px rgba(37,99,235,0.3);
+    }
+    .is-closing .btn-cal:hover { opacity: 0.88; }
+
+    /* ── LEGEND ───────────────────────────── */
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 16px 28px;
+      border-top: 1px solid var(--border);
+      background: var(--bg);
+    }
+
+    /* ── TOAST ────────────────────────────── */
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      padding: 14px 20px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #fff;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.18);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transform: translateY(80px);
+      opacity: 0;
+      transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      pointer-events: none;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.success { background: linear-gradient(135deg, #059669, #10b981); }
+    .toast.error   { background: linear-gradient(135deg, #dc2626, #ef4444); }
+    .toast.info    { background: linear-gradient(135deg, var(--navy), var(--blue)); }
+
+    /* ── FOOTER ───────────────────────────── */
+    footer {
+      text-align: center;
+      padding: 28px;
+      font-size: 0.75rem;
+      color: #94a3b8;
+    }
+
+    /* ── PRINT ────────────────────────────── */
+    @media print {
+      .no-print { display: none !important; }
+      body { background: white; }
+      #results { display: block !important; }
+      .hero { padding: 20px 24px; }
+      .main { margin-top: 0; }
+    }
+
+    @media (max-width: 600px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .full { grid-column: auto; }
+      .summary-bar { grid-template-columns: 1fr; }
+      .summary-item:first-child { border-radius: 16px 16px 0 0; }
+      .summary-item:last-child  { border-radius: 0 0 16px 16px; }
+      .date-row { grid-template-columns: 28px 1fr; padding: 14px 18px; }
+      .row-date, .btn-cal { grid-column: 2; }
+      .card-body { padding: 20px; }
+      .results-header, .date-row, .legend { padding-left: 18px; padding-right: 18px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HERO -->
+<header class="hero no-print">
+  <div class="hero-inner">
+    <div class="hero-badge">
+      <svg width="10" height="10" viewBox="0 0 20 20" fill="currentColor"><path d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"/></svg>
+      Realty of America
+    </div>
+    <h1>Know Your <span>Dates</span></h1>
+    <p>Contract checklist date calculator — enter your dates, get every deadline.</p>
+  </div>
+</header>
+
+<!-- PRINT HEADER -->
+<div style="display:none" class="print-only" id="printHeader">
+  <h1 style="font-size:1.5rem;font-weight:800;color:#0b1f4b;">Know Your Dates — ROA Contract Date Calculator</h1>
+</div>
+
+<main class="main">
+
+  <!-- FORM CARD -->
+  <div class="card no-print">
+    <div class="card-header">
+      <div>
+        <h2>Contract Details</h2>
+        <p>Fill in the fields below to calculate all key dates</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="form-grid">
+
+        <div class="field full">
+          <label>Property Address <span class="req">*</span></label>
+          <input id="address" type="text" placeholder="123 Main St, City, FL 00000" />
+        </div>
+
+        <div class="field">
+          <label>Agent Name</label>
+          <input id="agentName" type="text" placeholder="Agent full name" />
+        </div>
+
+        <div class="field">
+          <label>Buyer / Seller Name</label>
+          <input id="clientName" type="text" placeholder="Client full name" />
+        </div>
+
+        <div class="field full">
+          <label>Realtor Email <span class="req">*</span></label>
+          <input id="realtorEmail" type="email" placeholder="realtor@example.com" />
+        </div>
+
+        <div class="field">
+          <label>Contract Date <span class="req">*</span></label>
+          <input id="contractDate" type="date" />
+        </div>
+
+        <div class="field">
+          <label>Closing Date <span class="req">*</span></label>
+          <input id="closingDate" type="date" />
+        </div>
+
+      </div>
+
+      <div id="formError" class="error-msg">⚠️ Please enter Contract Date, Closing Date, and Realtor Email to continue.</div>
+
+      <div class="form-actions">
+        <button class="btn-primary" onclick="calculate()">
+          <svg width="15" height="15" viewBox="0 0 20 20" fill="currentColor"><path d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"/></svg>
+          Calculate Dates
+        </button>
+        <button class="btn-ghost" onclick="resetForm()">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/></svg>
+          Reset
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results">
+
+    <!-- Summary -->
+    <div class="summary-bar">
+      <div class="summary-item">
+        <div class="summary-label">Property</div>
+        <div class="summary-value" id="summaryAddress">—</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-label">Client</div>
+        <div class="summary-value" id="summaryClient">—</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-label">Agent</div>
+        <div class="summary-value" id="summaryAgent">—</div>
+      </div>
+    </div>
+
+    <!-- Dates Card -->
+    <div class="card results-card">
+      <div class="results-header no-print">
+        <h3>
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="#2563eb"><path d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"/></svg>
+          Contract Checklist Dates
+        </h3>
+        <div class="results-actions">
+          <button class="btn-email" id="emailBtn" onclick="sendEmail()">
+            <svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg>
+            Email Summary
+          </button>
+          <button class="btn-add-all" onclick="addAllToCalendar()">
+            <svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+            Add All to Calendar
+          </button>
+          <button class="btn-print" onclick="window.print()">
+            <svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a1 1 0 001 1h8a1 1 0 001-1v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a1 1 0 00-1-1H6a1 1 0 00-1 1zm2 0h6v3H7V4zm-1 9v-2h8v2H6zm9-6a1 1 0 110 2 1 1 0 010-2z" clip-rule="evenodd"/></svg>
+            Print
+          </button>
+        </div>
+      </div>
+
+      <div class="date-list" id="dateList"></div>
+
+      <div class="legend no-print">
+        <span class="chip chip-contract">● From Contract Date</span>
+        <span class="chip chip-closing">● From Closing Date</span>
+        <span class="chip chip-key">★ Key Milestone</span>
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+<footer class="no-print">Realty of America &nbsp;·&nbsp; Contract Date Calculator</footer>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+  // ─── EmailJS CONFIG ────────────────────────────────────────────────────────
+  // Replace these three values after setting up your free EmailJS account
+  // at https://www.emailjs.com
+  const EMAILJS_PUBLIC_KEY  = 'YOUR_PUBLIC_KEY';   // Account > API Keys
+  const EMAILJS_SERVICE_ID  = 'YOUR_SERVICE_ID';   // Email Services tab
+  const EMAILJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID';  // Email Templates tab
+  // ──────────────────────────────────────────────────────────────────────────
+
+  emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+
+  // ─── UTILS ────────────────────────────────────────────────────────────────
+  function parseDate(str) {
+    const [y, m, d] = str.split('-').map(Number);
+    return new Date(y, m - 1, d);
+  }
+  function addDays(date, days) {
+    const d = new Date(date);
+    d.setDate(d.getDate() + days);
+    return d;
+  }
+  function fmt(date) {
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+  function fmtDay(date) {
+    return date.toLocaleDateString('en-US', { weekday: 'long' });
+  }
+  function fmtGCal(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}${m}${d}`;
+  }
+  function calUrl(title, date, address) {
+    const s = fmtGCal(date);
+    const e = fmtGCal(addDays(date, 1));
+    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${s}/${e}&details=${encodeURIComponent('ROA Contract Date Calculator\nProperty: ' + address)}&location=${encodeURIComponent(address)}`;
+  }
+
+  function showToast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+    t.textContent = icons[type] + ' ' + msg;
+    t.className = `toast ${type} show`;
+    setTimeout(() => t.className = 'toast', 3500);
+  }
+
+  let currentEvents = [];
+  let currentData   = {};
+
+  // ─── CALCULATE ────────────────────────────────────────────────────────────
+  function calculate() {
+    const contractStr = document.getElementById('contractDate').value;
+    const closingStr  = document.getElementById('closingDate').value;
+    const email       = document.getElementById('realtorEmail').value.trim();
+    const err = document.getElementById('formError');
+
+    if (!contractStr || !closingStr || !email) {
+      err.classList.add('show');
+      return;
+    }
+    err.classList.remove('show');
+
+    const contract = parseDate(contractStr);
+    const closing  = parseDate(closingStr);
+    const address  = document.getElementById('address').value || 'Property';
+    const agent    = document.getElementById('agentName').value || '—';
+    const client   = document.getElementById('clientName').value || '—';
+
+    currentData = { address, agent, client, email };
+
+    const milestones = [
+      { label: 'Send Title – Executed Sales Contract', date: addDays(contract, 1),  badge: 'contract', note: '24 hrs from Contract Date' },
+      { label: 'Last Day to Turn in Earnest Money (EM)', date: addDays(contract, 3),  badge: 'contract', note: '3 days from Contract Date' },
+      { label: 'Check on Title Commitment',             date: addDays(contract, 7),  badge: 'contract', note: '7 days from Contract Date' },
+      { label: 'End of Inspection Period',              date: addDays(contract, 10), badge: 'key',      note: '10 days from Contract Date' },
+      { label: 'Seller Resolution Return Deadline',     date: addDays(contract, 15), badge: 'contract', note: '5 days after Inspection Period ends' },
+      { label: 'Appraisal Request / Update',            date: addDays(contract, 21), badge: 'contract', note: '~21 days from Contract Date' },
+      { label: 'CDA Request',                           date: addDays(closing, -5),  badge: 'closing',  note: '5 days before Closing' },
+      { label: 'CTC – Clear to Close',                  date: addDays(closing, -3),  badge: 'closing',  note: '3 days before Closing' },
+      { label: 'Final Walk-Through',                    date: addDays(closing, -1),  badge: 'closing',  note: '1 day before Closing' },
+      { label: '🏠 CLOSING DATE',                       date: closing,               badge: 'key',      note: 'Closing Day', isClosing: true },
+    ];
+
+    currentEvents = milestones.map(m => ({ ...m, address }));
+
+    document.getElementById('summaryAddress').textContent = address;
+    document.getElementById('summaryClient').textContent  = client;
+    document.getElementById('summaryAgent').textContent   = agent;
+
+    const list = document.getElementById('dateList');
+    list.innerHTML = '';
+
+    milestones.forEach((m, i) => {
+      const chipClass = m.badge === 'contract' ? 'chip-contract' : m.badge === 'closing' ? 'chip-closing' : 'chip-key';
+      const chipLabel = m.badge === 'contract' ? 'Contract' : m.badge === 'closing' ? 'Closing' : '★ Key';
+      const row = document.createElement('div');
+      row.className = `date-row${m.isClosing ? ' is-closing' : ''}`;
+      row.innerHTML = `
+        <div class="row-num">${i + 1}</div>
+        <div class="row-info">
+          <div class="row-title">${m.label}</div>
+          <div class="row-note">${m.note}</div>
+          <span class="chip ${chipClass}" style="margin-top:4px">${chipLabel}</span>
+        </div>
+        <div class="row-date">
+          <div class="row-date-main">${fmt(m.date)}</div>
+          <div class="row-date-day">${fmtDay(m.date)}</div>
+        </div>
+        <a class="btn-cal no-print" href="${calUrl(m.label, m.date, address)}" target="_blank" rel="noopener">
+          <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+          Add
+        </a>
+      `;
+      list.appendChild(row);
+    });
+
+    const res = document.getElementById('results');
+    res.classList.add('visible');
+    setTimeout(() => res.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+  }
+
+  // ─── SEND EMAIL ───────────────────────────────────────────────────────────
+  function sendEmail() {
+    if (!currentEvents.length) return;
+    if (EMAILJS_PUBLIC_KEY === 'YOUR_PUBLIC_KEY') {
+      showToast('EmailJS not configured yet — see setup instructions.', 'error');
+      return;
+    }
+
+    const btn = document.getElementById('emailBtn');
+    btn.disabled = true;
+    btn.textContent = '⏳ Sending…';
+
+    // Build a plain-text date list for the email
+    const dateLines = currentEvents.map((e, i) =>
+      `${i + 1}. ${e.label}\n   📅 ${fmt(e.date)} (${fmtDay(e.date)})\n   ${e.note}`
+    ).join('\n\n');
+
+    const params = {
+      to_email:      currentData.email,
+      to_name:       currentData.agent || 'Realtor',
+      property:      currentData.address,
+      client_name:   currentData.client,
+      agent_name:    currentData.agent,
+      date_list:     dateLines,
+    };
+
+    emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params)
+      .then(() => {
+        showToast(`Email sent to ${currentData.email}!`, 'success');
+        btn.disabled = false;
+        btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg> Email Summary`;
+      })
+      .catch(err => {
+        console.error(err);
+        showToast('Failed to send email. Check EmailJS config.', 'error');
+        btn.disabled = false;
+        btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg> Email Summary`;
+      });
+  }
+
+  // ─── ADD ALL TO CALENDAR ──────────────────────────────────────────────────
+  function addAllToCalendar() {
+    currentEvents.forEach((evt, i) => {
+      setTimeout(() => window.open(calUrl(evt.label, evt.date, evt.address), '_blank'), i * 400);
+    });
+  }
+
+  // ─── RESET ────────────────────────────────────────────────────────────────
+  function resetForm() {
+    ['address','agentName','clientName','realtorEmail','contractDate','closingDate'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('results').classList.remove('visible');
+    document.getElementById('formError').classList.remove('show');
+    currentEvents = [];
+    currentData   = {};
+  }
+
+  // Allow Enter key to trigger calculate
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && document.activeElement.tagName === 'INPUT') calculate();
+  });
+</script>
+
+</body>
+</html>
