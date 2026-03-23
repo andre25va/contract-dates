@@ -445,6 +445,23 @@
     .chip-closing  { background: #d1fae5; color: #065f46; }
     .chip-key      { background: #fef3c7; color: #92400e; }
 
+    .row-date-input {
+      background: transparent;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 5px 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      width: 140px;
+    }
+    .row-date-input:hover { border-color: var(--blue); background: #f0f6ff; }
+    .row-date-input:focus { outline: none; border-color: var(--blue); background: #f0f6ff; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+    .row-date-day-label { font-size: 0.72rem; color: var(--muted); margin-top: 3px; text-align: center; }
+
     .btn-cal {
       display: inline-flex;
       align-items: center;
@@ -714,6 +731,26 @@
     const d = String(date.getDate()).padStart(2, '0');
     return `${y}${m}${d}`;
   }
+  function fmtInput(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
+  function updateDate(i, val) {
+    if (!val) return;
+    const [y, mo, d] = val.split('-').map(Number);
+    const newDate = new Date(y, mo - 1, d);
+    currentEvents[i].date = newDate;
+    // Update day label
+    const dayLabel = document.getElementById(`day-label-${i}`);
+    if (dayLabel) dayLabel.textContent = fmtDay(newDate);
+    // Update Add button href
+    const btn = document.getElementById(`cal-btn-${i}`);
+    if (btn) btn.href = calUrl(currentEvents[i].label, newDate, currentData.address);
+  }
+
   function calUrl(title, date, address) {
     const s = fmtGCal(date);
     const e = fmtGCal(addDays(date, 1));
@@ -787,11 +824,11 @@
           <span class="chip ${chipClass}" style="margin-top:4px">${chipLabel}</span>
         </div>
         <div class="row-date">
-          <div class="row-date-main">${fmt(m.date)}</div>
-          <div class="row-date-day">${fmtDay(m.date)}</div>
+          <input type="date" class="row-date-input" id="date-input-${i}" value="${fmtInput(m.date)}" onchange="updateDate(${i}, this.value)" />
+          <div class="row-date-day-label" id="day-label-${i}">${fmtDay(m.date)}</div>
         </div>
-        <a class="btn-cal no-print" href="${calUrl(m.label, m.date, address)}" target="_blank" rel="noopener">
-          <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+        <a class="btn-cal no-print" id="cal-btn-${i}" href="${calUrl(m.label, m.date, address)}" target="_blank" rel="noopener">
+          <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
           Add
         </a>
       `;
